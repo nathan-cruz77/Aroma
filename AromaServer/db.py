@@ -138,6 +138,5 @@ def vendas():
                                    ON v.id = vp.venda_id 
                                    AND p.id = vp.produto_id
                                    ORDER BY data DESC LIMIT 10''').fetchall()
-        keys = [description[0] for description in cursor.description]
-        #logger.warn(_sql_to_dict(keys, result))
+        keys = ['data', 'total']
         return _sql_to_dict(keys, result)
