@@ -146,9 +146,10 @@ function($scope, json_request){
             var dia, mes, ano;
             var hora, minuto;
             var aux;
+            var total;
             $scope.ultimas_vendas = [];
-
-            for(var i = 0; i<  response.data.data.length; i++){
+            console.log(response.data.data[0]);
+            for(var i = 0; i<response.data.data.length; i++){
                 date = new Date(response.data.data[i].data*1000);
 
                 dia = date.getDate();
@@ -169,10 +170,13 @@ function($scope, json_request){
 
                 if(minuto <= 9)
                     minuto = '0' + minuto;
+                    
+                
 
                 aux = {
                     data: dia + '/' + mes + '/' + ano,
-                    hora_min: hora + ':' + minuto
+                    hora_min: hora + ':' + minuto,
+                    total_Venda: 'R$ ' + total
                 }
 
                 $scope.ultimas_vendas.push(aux);
@@ -408,7 +412,6 @@ function($scope, $cookies){
         var test = credentials_encode($scope.usuario, $scope.senha);
         console.log(test);
         var login_url = 'http://localhost:5000/login/' + test;
-
         $http.get(login_url).then(
             function success(response){
                 if(response.data.token != ''){
