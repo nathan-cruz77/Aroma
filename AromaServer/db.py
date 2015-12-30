@@ -132,7 +132,12 @@ def remove_produto(prod_id):
 def vendas():
     with _get_connection() as con:
         cursor = con.cursor()
-        result = cursor.execute('''SELECT * FROM Vendas''').fetchall()
+        result = cursor.execute('''SELECT v.data, vp.quantidade*p.preco_venda
+                                   FROM Vendas v
+                                   JOIN VendaProduto vp, Produtos p
+                                   ON v.id = vp.venda_id 
+                                   AND p.id = vp.produto_id
+                                   ORDER BY data DESC LIMIT 10''').fetchall()
         keys = [description[0] for description in cursor.description]
-
+        #logger.warn(_sql_to_dict(keys, result))
         return _sql_to_dict(keys, result)
