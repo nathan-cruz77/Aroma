@@ -4,3 +4,5 @@ AromaServer/*.db
 
 *.pyc
 *.pyo
+
+*.db
