@@ -12,6 +12,7 @@ from db import posta_produto as db_posta_produto
 from db import remove_produto
 from db import comprar as db_comprar_produto
 from db import insere_venda
+from db import vendas
 
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -23,11 +24,7 @@ def home():
 
 @app.route('/ultimas_vendas', methods=['GET'])
 def ultimas_vendas():
-
-    with open('ultimas_vendas.json') as dados_dummy:
-        ultimas_vendas = json.loads(dados_dummy.read())
-
-    return jsonify(ultimas_vendas)
+    return jsonify(vendas())
 
 
 @app.route('/login/<credenciais>')
