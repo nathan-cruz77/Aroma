@@ -146,7 +146,6 @@ function($scope, json_request){
             var dia, mes, ano;
             var hora, minuto;
             var aux;
-            var total;
             $scope.ultimas_vendas = [];
             console.log(response.data.data[0]);
             for(var i = 0; i<response.data.data.length; i++){
@@ -170,13 +169,11 @@ function($scope, json_request){
 
                 if(minuto <= 9)
                     minuto = '0' + minuto;
-                    
-                
 
                 aux = {
                     data: dia + '/' + mes + '/' + ano,
                     hora_min: hora + ':' + minuto,
-                    total_Venda: 'R$ ' + total
+                    total: response.data.data[i].total
                 }
 
                 $scope.ultimas_vendas.push(aux);
