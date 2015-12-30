@@ -1,0 +1,6 @@
+AromaServer/AromaServer/
+AromaServer/__pycache__/
+AromaServer/*.db
+
+*.pyc
+*.pyo

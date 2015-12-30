@@ -1,0 +1,56 @@
+<!-- Navigation header -->
+<ng-include src=" 'templates/header.html' "></ng-include>
+
+<div class="container" ng-controller="VendaController">
+    <form class="inline-form" name="vendaForm">
+        <fieldset>
+
+            <!-- Titulo do formulario -->
+            <legend>Vender
+                <!-- Adiciona entrada -->
+                <button class="btn btn-success" ng-click="adicionaEntrada()">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Adicionar entrada
+                </button>
+            </legend>
+
+            <div ng-repeat="produto_quantidade in itens_vendidos">
+                <!-- Produto -->
+                <div class="form-group">
+                    <label class="col-md-1 control-label" for="selectbasic">Produto</label>
+                    <div class="col-md-2">
+                        <select ng-options="produto.nome for produto in todos_produtos" ng-model="produto_quantidade.produto"
+                            class="form-control"
+                            ng-change="recalculaTotal()">
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quantidade do produto -->
+                <div class="form-group">
+                    <label class="col-md-1 control-label" for="">Quantidade</label>
+                    <div class="col-md-2">
+                        <input type="number" min="0" max="{{produto_quantidade.produto.estoque}}"
+                            ng-model="produto_quantidade.quantidade" class="form-control"
+                            ng-change="recalculaTotal()">
+                    </div>
+                </div>
+
+                <!-- Remove entrada -->
+                <button class="btn btn-danger" ng-click="removeEntrada(produto_quantidade)">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
+                <br><br>
+            </div>
+
+            <div class="row">
+                <p>Total: {{ total | currency : 'R$' }}</p>
+                <br><br><br>
+                <div class="col-md-0 col-md-offset-3">
+                    <button class="btn btn-success btn-lg" ng-click="finalizaVenda()">Finalizar Venda</button>                
+                    <button class="btn btn-danger btn-lg" ng-click="gotoHome()">Cancelar Venda</button>
+                    </div>
+            </div>
+        </fieldset>
+    </form>
+</div>

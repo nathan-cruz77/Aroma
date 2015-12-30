@@ -1,0 +1,92 @@
+<!-- Navigation header -->
+<ng-include src=" 'templates/header.html' "></ng-include>
+
+<div class="container" ng-controller="ProdutosController">
+    <form name="produtoForm" class="form-horizontal" ng-submit="adicionaProduto(novoProduto)">
+        <fieldset>
+
+        <!-- Form Name -->
+        <legend>Alterar / Adicionar produto</legend>
+
+        <!-- Hidden input for updates -->
+        <input ng-model="novoProduto.id" type="hidden" />
+
+        <!-- Text input-->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="nome">Nome</label>
+            <div class="col-md-4">
+                <input ng-model="novoProduto.nome" id="form_produtos" name="nome" placeholder="ex. Coxinha" class="form-control input-md" required="" type="text">
+            </div>
+        </div>
+
+        <!-- Prepended text-->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="preco_compra">Preço de Compra</label>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">R$</span>
+                    <input ng-model="novoProduto.preco_compra" id="preco_compra" name="preco_compra" class="form-control" placeholder="ex. 1.50" required="" type="text">
+                </div>
+            </div>
+        </div>
+
+        <!-- Preco Venda -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="preco_venda">Preço de Venda</label>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">R$</span>
+                    <input ng-model="novoProduto.preco_venda" id="preco_venda" name="preco_venda" class="form-control" placeholder="ex. 3.00" required="" type="text">
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for=""></label>
+            <div class="col-md-4">
+                <button id="" name="" class="btn btn-success" type="submit"
+                    ng-disabled="produtoForm.$invalid">
+                    Salvar
+                </button>
+            </div>
+        </div>
+
+        </fieldset>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <caption><strong><h1>Produtos</h1></strong></caption>
+            <thead>
+                <tr>
+                    <th>Editar</th>
+                    <th ng-click=" sortBy = 'nome' ">Nome</th>
+                    <th ng-click=" sortBy = 'preco_compra' ">Preço Compra</th>
+                    <th ng-click=" sortBy = 'preco_venda' ">Preço Venda</th>
+                    <th ng-click=" sortBy = 'estoqe' ">Em estoque</th>
+                    <th>Remover</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="produto in todos_produtos | orderBy: get_sortBy()">
+                    <td>
+                        <button class="btn btn-success" ng-click="edita_produto(produto)">
+                            <span class="glyphicon glyphicon-edit"></span>  Editar
+                        </button>
+                    </td>
+                    <td>{{ produto.nome }}</td>
+                    <td>{{ produto.preco_compra | currency : 'R$' }}</td>
+                    <td>{{ produto.preco_venda | currency : 'R$' }}</td>
+                    <td>{{ produto.estoque }}</td>
+                    <td>
+                        <button class="btn btn-danger" ng-click="remove_produto(produto)">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

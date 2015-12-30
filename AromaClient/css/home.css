@@ -1,0 +1,28 @@
+body{
+    background-color: #EEE;
+}
+
+.btn{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.navbar-stuff{
+    margin-top: 7px;
+     margin-left: 10px;
+     margin-right: 10px;
+ }
+
+.user-logo{
+    margin-top: -9px;
+    width: 32px;
+    height: 32px;
+}
+
+table.table-margin{
+    margin-top: 20%;
+}
+
+img.img-circle{
+    border-radius: 10px;
+}

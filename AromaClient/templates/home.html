@@ -1,0 +1,33 @@
+<!-- Navigation header -->
+<ng-include src=" 'templates/header.html' "></ng-include>
+
+<!-- Home -->
+<div class="container">
+    <div class="table-responsive" ng-controller="HomeController">
+        <table class="table table-striped">
+            <caption><strong><h1>Últimas vendas</h1></strong></caption>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Total</th>
+                    <!-- TODO <th>Detalhes</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="venda in ultimas_vendas | orderBy: 'data'">
+                    <td>{{ venda.data }}</td>
+                    <td>{{ venda.hora }}</td>
+                    <td>{{ venda.total | currency : 'R$' }}</td>
+                    <!-- TODO
+                    <td>
+                        <button class="btn" ng-click="abre_detalhes($index)">
+                            <span class="glyphicon glyphicon-chevron-down"></span>Detalhes
+                        </button>
+                    </td>
+                    -->
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

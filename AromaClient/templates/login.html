@@ -1,0 +1,20 @@
+<div class="container" ng-controller="Auth">
+    <link href="css/login.css" rel="stylesheet">
+    <form name="loginForm" class="form-signin" role="form">
+        <h2 class="form-signin-heading">Login</h2>
+        <label for="usuario" class="sr-only">Usuário</label>
+        <input ng-model="usuario" class="form-control" placeholder="usuário" autofocus required>
+        <label for="senha" class="sr-only">Senha</label>
+        <input ng-model="senha" type="password" class="form-control" placeholder="senha" required>
+        <div class="checkbox">
+            <label>
+                <input ng-model="keep_on" type="checkbox" value="Permanecer conectado"> Permanecer conectado
+            </label>
+        </div>
+        <!--
+        <button class="btn btn-lg btn-primary btn-block" ng-click="login()"
+                type="submit" ng-disabled="loginForm.$invalid">Entrar</button>
+        -->
+        <a href="#!/home" class="btn btn-lg btn-primary btn-block">Entrar</a>
+    </form>
+</div>
