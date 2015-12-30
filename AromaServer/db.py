@@ -134,4 +134,5 @@ def vendas():
         cursor = con.cursor()
         result = cursor.execute('''SELECT * FROM Vendas''').fetchall()
         keys = [description[0] for description in cursor.description]
+
         return _sql_to_dict(keys, result)

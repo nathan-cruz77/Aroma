@@ -142,7 +142,41 @@ app.controller('HomeController', ['$scope', 'json_request',
 function($scope, json_request){
     json_request('GET', '/ultimas_vendas').then(
         function sucesso(response){
-            $scope.ultimas_vendas = response.data.ultimas_vendas;
+            var date;
+            var dia, mes, ano;
+            var hora, minuto;
+            var aux;
+            $scope.ultimas_vendas = [];
+
+            for(var i = 0; i<  response.data.data.length; i++){
+                date = new Date(response.data.data[i].data*1000);
+
+                dia = date.getDate();
+                mes = date.getMonth();
+                ano = date.getFullYear();
+
+                hora = date.getHours();
+                minuto = date.getMinutes();
+
+                if(dia <= 9)
+                    dia = '0' + dia;
+
+                if(mes <= 9)
+                    mes = '0' + mes;
+
+                if(hora <= 9)
+                    hora = '0' + hora;
+
+                if(minuto <= 9)
+                    minuto = '0' + minuto;
+
+                aux = {
+                    data: dia + '/' + mes + '/' + ano,
+                    hora_min: hora + ':' + minuto
+                }
+
+                $scope.ultimas_vendas.push(aux);
+            }
         },
         function error(response){
             console.log('Erro na mensagem');
