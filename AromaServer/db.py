@@ -51,7 +51,7 @@ def insere_venda(json_data):
                        (nova_venda_id, json_data['time']))
         for par in json_data['data']:
             cursor.execute('''UPDATE Produtos SET estoque = estoque - ? WHERE id = ?''',
-                        (par['produto']['estoque'], par['produto']['id']))
+                        (par['quantidade'], par['produto']['id']))
             cursor.execute('''INSERT OR REPLACE INTO VendaProduto
                            (venda_id, produto_id, quantidade) VALUES
                            (
@@ -135,4 +135,3 @@ def vendas():
         result = cursor.execute('''SELECT * FROM Vendas''').fetchall()
         keys = [description[0] for description in cursor.description]
         return _sql_to_dict(keys, result)
-        
