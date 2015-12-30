@@ -50,7 +50,7 @@ def insere_venda(json_data):
         cursor.execute('''INSERT INTO Vendas (id, data) VALUES (?, ?)''',
                        (nova_venda_id, json_data['time']))
         for par in json_data['data']:
-            cur.execute('''UPDATE Produtos SET estoque = estoque - ? WHERE id = ?''',
+            cursor.execute('''UPDATE Produtos SET estoque = estoque - ? WHERE id = ?''',
                         (par['produto']['estoque'], par['produto']['id']))
             cursor.execute('''INSERT OR REPLACE INTO VendaProduto
                            (venda_id, produto_id, quantidade) VALUES
@@ -128,3 +128,11 @@ def remove_produto(prod_id):
         cursor.execute('''DELETE FROM Produtos WHERE id = ?''', (prod_id,))
 
     return {'transaction': 'done'}
+
+def vendas():
+    with _get_connection() as con:
+        cursor = con.cursor()
+        result = cursor.execute('''SELECT * FROM Vendas''').fetchall()
+        keys = [description[0] for description in cursor.description]
+        return _sql_to_dict(keys, result)
+        
