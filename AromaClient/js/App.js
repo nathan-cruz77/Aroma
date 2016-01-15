@@ -146,7 +146,6 @@ function($scope, json_request){
             var dia, mes, ano;
             var hora, minuto;
             var aux;
-            var total;
             $scope.ultimas_vendas = [];
 
             for(var i = 0; i<  response.data.data.length; i++){
