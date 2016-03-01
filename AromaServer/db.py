@@ -4,18 +4,27 @@ import json
 import sqlite3 as sql
 import uuid
 import logging
+import collections
 
 _DB_FILE = 'aroma.db'
 logger = logging.getLogger(__name__)
 
 
 def _sql_to_dict(keys, sql_list):
+    if not isinstance(keys, collections.Iterable) or isinstance(keys, str):
+        raise TypeError('Unable to dictify with single key')
+
+    if not isinstance(sql_list, collections.Iterable) or isinstance(sql_list, str):
+        raise TypeError('Unable to dictify non iterable result list')
+
     result = {'data': []}
 
     for x in sql_list:
-        aux = {}
-        for y, elemento in enumerate(x):
-            aux[keys[y]] = elemento
+
+        if len(x) != len(keys):
+            raise ValueError('Unable to dictify, keys list of different size than result list')
+
+        aux = {keys[y]: elemento for y, elemento in enumerate(x)}
         result['data'].append(aux)
 
     return result
@@ -32,7 +41,6 @@ def _get_connection():
 def comprar(dados):
     with _get_connection() as con:
         cursor = con.cursor()
-        par = dados['data'][0]
         for par in dados['data']:
             cursor.execute('''UPDATE Produtos SET estoque = estoque + ?
                            WHERE id = ?''',
@@ -98,14 +106,19 @@ def posta_produto(produto):
 
     def insere_produto(produto):
         new_id = _new_id()
+
+        novo_produto = (
+            new_id, produto['nome'],
+            produto['preco_compra'],
+            produto['preco_venda'],
+            0
+        )
+
         with _get_connection() as con:
             cursor = con.cursor()
             cursor.execute(
                 '''INSERT INTO Produtos (id, nome, preco_compra, preco_venda, estoque)
-                    VALUES (?, ?, ?, ?, ?)''',
-                    (new_id, produto['nome'],
-                     produto['preco_compra'],
-                     produto['preco_venda'], 0)
+                    VALUES (?, ?, ?, ?, ?)''', novo_produto
             )
         return {'product_id': new_id}
 

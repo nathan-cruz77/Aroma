@@ -19,8 +19,7 @@ app.config(function($routeProvider, $locationProvider){
 });
 
 /* Service to handle all the requests to the API */
-app.factory('json_request', ['$http',
-function($http){
+app.factory('json_request', ['$http', function($http){
     return function(metodo, url, dados){
         if(typeof dados === 'undefined'){
             dados = {};
@@ -30,7 +29,8 @@ function($http){
         console.log('Fazendo request para ' + url);
 
         return $http({
-                method: metodo, url: url,
+                method: metodo,
+                url: url,
                 headers: {'Content-Type': 'application/json'},
                 data: dados
         });
@@ -140,15 +140,17 @@ function($scope, $location, json_request){
 /* Contoller for the '/home' page */
 app.controller('HomeController', ['$scope', 'json_request',
 function($scope, json_request){
+
+    $scope.ultimas_vendas = []
+
     json_request('GET', '/ultimas_vendas').then(
         function sucesso(response){
             var date;
             var dia, mes, ano;
             var hora, minuto;
             var aux;
-            $scope.ultimas_vendas = [];
 
-            for(var i = 0; i<  response.data.data.length; i++){
+            for(var i = 0; i < response.data.data.length; i++){
                 date = new Date(response.data.data[i].data*1000);
 
                 dia = date.getDate();
@@ -172,7 +174,7 @@ function($scope, json_request){
 
                 aux = {
                     data: dia + '/' + mes + '/' + ano,
-                    hora_min: hora + ':' + minuto,
+                    hora: hora + ':' + minuto,
                     total: response.data.data[i].total
                 }
 
@@ -201,23 +203,6 @@ function($scope, json_request){
 
     $scope.novoProduto = {};
     $scope.sortBy = 'nome';
-
-    function remove_entrada(produto){
-
-        var chave_a_ser_removida = 0;
-
-        for(var i = 0; i < $scope.todos_produtos.length; i++){
-            if($scope.todos_produtos[i].id === produto.id){
-                chave_a_ser_removida = i;
-                i = $scope.todos_produtos.length;
-            }
-        }
-
-        if($scope.todos_produtos.length > 1){
-            $scope.todos_produtos.splice(chave_a_ser_removida, 1);
-        }
-
-    }
 
     $scope.adicionaProduto = function(produto){
 
@@ -261,21 +246,6 @@ function($scope, json_request){
         $scope.novoProduto.preco_venda = produto.preco_venda;
 
         $window.document.getElementById('form_produtos').focus();
-
-    }
-
-    $scope.remove_produto = function(produto){
-
-        json_request('DELETE', '/produtos/' + produto.id, {}).then(
-            function sucesso(response){
-                console.log('Produto removido com sucesso');
-            },
-            function erro(response){
-                console.log('Erro ao remover produto');
-            }
-        );
-
-        remove_entrada(produto);
     }
 
     $scope.get_sortBy = function(){
@@ -285,103 +255,9 @@ function($scope, json_request){
 }]);
 
 /* Controller for the '/venda' page */
-app.controller('VendaController', ['$scope', 'json_request', 'now_in_unix',
-function($scope, json_request, now_in_unix){
-
-    function carrega_produtos(){
-        json_request('GET', '/produtos').then(
-            function sucesso(response){
-                console.log('Recebida lista de produtos');
-                $scope.todos_produtos = response.data.data;
-            },
-            function erro(response){
-                console.log('Erro ao buscar a lista os produtos');
-            }
-        );
-    }
-
-    carrega_produtos();
-
-    $scope.itens_vendidos = [];
-    $scope.itens_vendidos.push({produto: {}, quantidade: 0});
-
-    $scope.total = 0;
-
-    $scope.adicionaEntrada = function(){
-        $scope.itens_vendidos.push({produto: {}, quantidade: 0});
-    }
-
-    $scope.removeEntrada = function(produto_quantidade){
-
-        var chave_a_ser_removida = 0;
-
-        for(var i = 0; i < $scope.itens_vendidos.length; i++){
-            if($scope.itens_vendidos[i].produto.id === produto_quantidade.produto.id){
-                chave_a_ser_removida = i;
-                i = $scope.itens_vendidos.length;
-            }
-        }
-
-        if($scope.itens_vendidos.length > 1){
-            $scope.itens_vendidos.splice(chave_a_ser_removida, 1);
-        }
-        else if($scope.itens_vendidos.length == 1){
-            produto_quantidade.produto = {};
-            produto_quantidade.quantidade = 0;
-        }
-
-        $scope.recalculaTotal();
-    }
-
-    $scope.finalizaVenda = function(){
-        var venda_dados = {data: $scope.itens_vendidos, time: now_in_unix()};
-        console.log("venda_dados = {data: " + venda_dados.data + ", time" + venda_dados.time + "}");
-        json_request('POST', '/venda', venda_dados).then(
-            function sucesso(response){
-                console.log('Venda feita com sucesso');
-                $scope.itens_vendidos = [];
-                $scope.itens_vendidos.push({produto: {}, quantidade: 0});
-                $scope.total = 0;
-
-                carrega_produtos();
-            },
-            function erro(response){
-                console.log('Erro ao fazer a compra');
-            }
-        );
-    }
-
-    $scope.gotoHome = function(){
-        $location.path('/home');
-    }
-
-    $scope.recalculaTotal = function(){
-        var total = 0;
-        var preco;
-        var quantidade;
-
-        $scope.total = total;
-        for(var i = 0; i < $scope.itens_vendidos.length; i++){
-            preco = $scope.itens_vendidos[i].produto.preco_compra;
-            quantidade = $scope.itens_vendidos[i].quantidade;
-
-            if(preco === 'undefined')
-                preco = 0;
-
-            if(quantidade === 'undefined')
-                quantidade = 0;
-
-            total += preco * quantidade;
-        }
-
-        if(isNaN(total)){
-            $scope.total = 0;
-        }
-        else {
-            $scope.total = total;
-        }
-    }
-
+app.controller('VendaController', ['$scope', 'json_request',
+function($scope, json_request){
+    console.log("Controller carregado com sucesso");
 }]);
 
 /* Controlle for the '/login' page */
@@ -391,9 +267,12 @@ function($scope, $cookies){
     function cookie_validity(){
         var now = Number(Date());
 
+
+        /*
         if($scope.keep_on)
             return now + (180 * 24 * 60 * 60); // 6 months ahead
         return now + (30 * 24 * 60 * 60); // 1 month ahead
+        */
     }
 
     function credentials_encode(usuario, senha){

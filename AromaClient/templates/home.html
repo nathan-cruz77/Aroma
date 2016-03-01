@@ -17,7 +17,7 @@
             <tbody>
                 <tr ng-repeat="venda in ultimas_vendas | orderBy: 'data'">
                     <td>{{ venda.data }}</td>
-                    <td>{{ venda.hora_min }}</td>
+                    <td>{{ venda.hora }}</td>
                     <td>{{ venda.total | currency : 'R$' }}</td>
                     <!-- TODO
                     <td>

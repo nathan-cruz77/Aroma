@@ -12,7 +12,7 @@ from db import posta_produto as db_posta_produto
 from db import remove_produto
 from db import comprar as db_comprar_produto
 from db import insere_venda
-from db import vendas
+from db import vendas as db_vendas
 
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -24,7 +24,9 @@ def home():
 
 @app.route('/ultimas_vendas', methods=['GET'])
 def ultimas_vendas():
-    return jsonify(vendas())
+    ultimas_vendas_lista = db_vendas()
+    logger.warn('Recuperadas vendas: {}'.format(ultimas_vendas_lista))
+    return jsonify(ultimas_vendas_lista)
 
 
 @app.route('/login/<credenciais>')
@@ -36,8 +38,8 @@ def login(credenciais):
 def produtos():
     if request.method == 'GET':
         todos_produtos = recupera_produtos()
-        logger.warn(json.dumps(todos_produtos))
         return jsonify(todos_produtos)
+
     json_request_as_str = request.data.decode()
     return posta_produto(json_request_as_str)
 
@@ -55,18 +57,8 @@ def registra_compra():
 
 @app.route('/venda', methods=['POST'])
 def venda():
-    def recupera_vendas():
-        pass
-    def registra_venda(request_data):
-        return jsonify(insere_venda(request_data))
-
-    resposta = {
-        'GET': recupera_vendas,
-        'POST': registra_venda
-    }
-
-    json_request_as_str = request.data.decode()
-    return resposta[request.method](json.loads(json_request_as_str))
+    request_data = request.data.decode()
+    return jsonify(insere_venda(request_data))
 
 
 def posta_produto(produto):
@@ -80,6 +72,7 @@ def acrescenta_header(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, DELETE'
     response.headers['Access-Control-Allow-Headers'] = 'content-type'
     return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
