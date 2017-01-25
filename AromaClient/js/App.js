@@ -45,6 +45,119 @@ function(){
     }
 }]);
 
+/* Contoller for the '/home' page */
+app.controller('HomeController', ['$scope', 'json_request',
+function($scope, json_request){
+
+    $scope.ultimas_vendas = []
+
+    for(var i = 0; i < 10; i++) {
+    setTimeout(function() {
+        console.log(i);
+    }, 1000);
+}
+
+    json_request('GET', '/ultimas_vendas').then(
+        function sucesso(response){
+            var date;
+            var dia, mes, ano;
+            var hora, minuto;
+            var aux;
+
+            for(var i = 0; i < response.data.data.length; i++){
+                date = new Date(response.data.data[i].data*1000);
+
+                var aux = response.data.data[i].data.split('-')
+
+                dia = aux[2].split(' ')[0];
+                mes = aux[1];
+                ano = aux[0];
+
+                hora = aux[2].split(' ')[1].split(':')[0];
+                minuto = aux[2].split(' ')[1].split(':')[1];
+
+                aux = {
+                    data: dia + '/' + mes + '/' + ano,
+                    hora: hora + ':' + minuto,
+                    total: response.data.data[i].total
+                }
+
+                $scope.ultimas_vendas.push(aux);
+            }
+        },
+        function error(response){
+            console.log('Erro na mensagem');
+        }
+    );
+}]);
+
+/* Controller for the '/produtos' page */
+app.controller('ProdutosController', ['$scope', 'json_request',
+function($scope, json_request){
+
+    json_request('GET', '/produtos').then(
+        function sucesso(response){
+            console.log('Recebida lista de proutos');
+            $scope.todos_produtos = response.data.data;
+        },
+        function erro(response){
+            console.log('Erro');
+        }
+    );
+
+    $scope.novoProduto = {};
+    $scope.sortBy = 'nome';
+
+    $scope.adicionaProduto = function(produto){
+
+        json_request('POST', '/produtos', produto).then(
+            function(response){
+                console.log('Adicionado produto:' +
+                    '{ id = ' + produto.id + ', ' +
+                    ' nome = ' + produto.nome + ', ' +
+                    ' preco_venda = ' + produto.preco_venda + ', ' +
+                    ' preco_venda = ' + produto.preco_venda + ', ' +
+                    ' estoque = ' + produto.estoque + '}'
+                );
+
+                if(typeof produto.id === 'undefined'){
+                    produto.estoque = 0;
+                    produto.id = response.data.product_id;
+                    $scope.todos_produtos.push(produto);
+                }
+                else{
+                    for(var i = 0; i < $scope.todos_produtos.length; i++){
+                        if($scope.todos_produtos[i].id === produto.id){
+                            produto.estoque = $scope.todos_produtos[i].estoque;
+                            $scope.todos_produtos[i] = produto;
+                        }
+                    }
+                }
+            },
+            function(response) {
+                console.log('Erro adicionando novo produto: ' + produto);
+            }
+        );
+
+        $scope.novoProduto = {}
+    }
+
+    $scope.edita_produto = function(produto){
+
+        $scope.novoProduto.id = produto.id;
+        $scope.novoProduto.nome = produto.nome;
+        $scope.novoProduto.preco_venda = produto.preco_venda;
+        $scope.novoProduto.preco_venda = produto.preco_venda;
+
+        $window.document.getElementById('form_produtos').focus();
+    }
+
+    $scope.get_sortBy = function(){
+        return $scope.sortBy;
+    }
+
+}]);
+
 /* Controller for the '/compra' page */
 app.controller('CompraController', ['$scope', '$location', 'json_request',
 function($scope, $location, json_request){
@@ -92,7 +205,7 @@ function($scope, $location, json_request){
     $scope.finalizaCompra = function(){
         json_request('POST', '/compra', {data: $scope.itens_comprados}).then(
             function sucesso(response){
-                console.log('Compra feita com sucesso');
+                console.log('compra feita com sucesso');
                 $scope.itens_comprados = [];
                 $scope.itens_comprados.push({produto: {}, quantidade: 0});
 
@@ -137,127 +250,96 @@ function($scope, $location, json_request){
 
 }]);
 
-/* Contoller for the '/home' page */
-app.controller('HomeController', ['$scope', 'json_request',
-function($scope, json_request){
-
-    $scope.ultimas_vendas = []
-
-    json_request('GET', '/ultimas_vendas').then(
-        function sucesso(response){
-            var date;
-            var dia, mes, ano;
-            var hora, minuto;
-            var aux;
-
-            for(var i = 0; i < response.data.data.length; i++){
-                date = new Date(response.data.data[i].data*1000);
-
-                dia = date.getDate();
-                mes = date.getMonth();
-                ano = date.getFullYear();
-
-                hora = date.getHours();
-                minuto = date.getMinutes();
-
-                if(dia <= 9)
-                    dia = '0' + dia;
-
-                if(mes <= 9)
-                    mes = '0' + mes;
-
-                if(hora <= 9)
-                    hora = '0' + hora;
-
-                if(minuto <= 9)
-                    minuto = '0' + minuto;
-
-                aux = {
-                    data: dia + '/' + mes + '/' + ano,
-                    hora: hora + ':' + minuto,
-                    total: response.data.data[i].total
-                }
-
-                $scope.ultimas_vendas.push(aux);
-            }
-        },
-        function error(response){
-            console.log('Erro na mensagem');
-        }
-    );
-}]);
-
-/* Controller for the '/produtos' page */
-app.controller('ProdutosController', ['$scope', 'json_request',
-function($scope, json_request){
-
+/* Controller for the '/venda' page */
+app.controller('VendaController', ['$scope', '$location', 'json_request',
+function($scope, $location, json_request){
     json_request('GET', '/produtos').then(
         function sucesso(response){
-            console.log('Recebida lista de proutos');
+            console.log('Recebida lista de produtos');
             $scope.todos_produtos = response.data.data;
         },
         function erro(response){
-            console.log('Erro');
+            console.log('Erro ao buscar a lista os produtos');
         }
     );
 
-    $scope.novoProduto = {};
-    $scope.sortBy = 'nome';
+    $scope.itens_vendidos = [];
+    $scope.itens_vendidos.push({produto: {}, quantidade: 0});
 
-    $scope.adicionaProduto = function(produto){
+    $scope.total = 0;
 
-        json_request('POST', '/produtos', produto).then(
-            function(response){
-                console.log('Adicionado produto:' +
-                    '{ id = ' + produto.id + ', ' +
-                    ' nome = ' + produto.nome + ', ' +
-                    ' preco_compra = ' + produto.preco_compra + ', ' +
-                    ' preco_venda = ' + produto.preco_venda + ', ' +
-                    ' estoque = ' + produto.estoque + '}'
-                );
+    $scope.adicionaEntrada = function(){
+        $scope.itens_vendidos.push({produto: {}, quantidade: 0});
+    }
 
-                if(typeof produto.id === 'undefined'){
-                    produto.estoque = 0;
-                    produto.id = response.data.product_id;
-                    $scope.todos_produtos.push(produto);
-                }
-                else{
-                    for(var i = 0; i < $scope.todos_produtos.length; i++){
-                        if($scope.todos_produtos[i].id === produto.id){
-                            produto.estoque = $scope.todos_produtos[i].estoque;
-                            $scope.todos_produtos[i] = produto;
-                        }
-                    }
-                }
+    $scope.removeEntrada = function(produto_quantidade){
+
+        var chave_a_ser_removida = 0;
+
+        for(var i = 0; i < $scope.itens_vendidos.length; i++){
+            if($scope.itens_vendidos[i].produto.id === produto_quantidade.produto.id){
+                chave_a_ser_removida = i;
+                i = $scope.itens_vendidos.length;
+            }
+        }
+
+        if($scope.itens_vendidos.length > 1){
+            $scope.itens_vendidos.splice(chave_a_ser_removida, 1);
+        }
+        else if($scope.itens_vendidos.length == 1){
+            produto_quantidade.produto = {};
+            produto_quantidade.quantidade = 0;
+        }
+
+        $scope.recalculaTotal();
+    }
+
+    $scope.finalizaVenda = function(){
+        json_request('POST', '/venda', {data: $scope.itens_vendidos}).then(
+            function sucesso(response){
+                console.log('venda feita com sucesso');
+                $scope.itens_vendidos = [];
+                $scope.itens_vendidos.push({produto: {}, quantidade: 0});
+
+                $scope.total = 0;
             },
-            function(response) {
-                console.log('Erro adicionando novo produto: ' + produto);
+            function erro(response){
+                console.log('Erro ao fazer a venda');
             }
         );
-
-        $scope.novoProduto = {}
     }
 
-    $scope.edita_produto = function(produto){
-
-        $scope.novoProduto.id = produto.id;
-        $scope.novoProduto.nome = produto.nome;
-        $scope.novoProduto.preco_compra = produto.preco_compra;
-        $scope.novoProduto.preco_venda = produto.preco_venda;
-
-        $window.document.getElementById('form_produtos').focus();
+    $scope.gotoHome = function(){
+        $location.path('/home');
     }
 
-    $scope.get_sortBy = function(){
-        return $scope.sortBy;
+    $scope.recalculaTotal = function(){
+        var total = 0;
+        var preco;
+        var quantidade;
+
+        $scope.total = total;
+        for(var i = 0; i < $scope.itens_vendidos.length; i++){
+            preco = $scope.itens_vendidos[i].produto.preco_venda;
+            quantidade = $scope.itens_vendidos[i].quantidade;
+
+            if(preco === 'undefined')
+                preco = 0;
+
+            if(quantidade === 'undefined')
+                quantidade = 0;
+
+            total += preco * quantidade;
+        }
+
+        if(isNaN(total)){
+            $scope.total = 0;
+        }
+        else {
+            $scope.total = total;
+        }
     }
 
-}]);
-
-/* Controller for the '/venda' page */
-app.controller('VendaController', ['$scope', 'json_request',
-function($scope, json_request){
-    console.log("Controller carregado com sucesso");
 }]);
 
 /* Controlle for the '/login' page */

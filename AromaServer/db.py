@@ -5,8 +5,9 @@ import sqlite3 as sql
 import uuid
 import logging
 import collections
+import datetime
 
-_DB_FILE = 'aroma.db'
+_DB_FILE = 'AromaServer/aroma.db'
 logger = logging.getLogger(__name__)
 
 
@@ -34,12 +35,12 @@ def _new_id():
     return str(uuid.uuid4())
 
 
-def _get_connection():
+def get_connection():
     return sql.connect(_DB_FILE)
 
 
 def comprar(dados):
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         for par in dados['data']:
             cursor.execute('''UPDATE Produtos SET estoque = estoque + ?
@@ -51,12 +52,14 @@ def comprar(dados):
 def insere_venda(json_data):
     nova_venda_id = _new_id()
 
-    logger.warn('json_data[\'time\'] = {}'.format(json_data['time']))
+    # Este campo não está sendo gerado pela view
+    data_hora = str(datetime.datetime.now())
+    data_hora = data_hora.split(".")[0]
 
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         cursor.execute('''INSERT INTO Vendas (id, data) VALUES (?, ?)''',
-                       (nova_venda_id, json_data['time']))
+                       (nova_venda_id, data_hora))
         for par in json_data['data']:
             cursor.execute('''UPDATE Produtos SET estoque = estoque - ? WHERE id = ?''',
                         (par['quantidade'], par['produto']['id']))
@@ -77,7 +80,7 @@ def insere_venda(json_data):
 
 
 def recupera_produtos():
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         result = cursor.execute('''SELECT * FROM Produtos''').fetchall()
         keys = [description[0] for description in cursor.description]
@@ -85,7 +88,7 @@ def recupera_produtos():
 
 
 def recupera_produto(prod_id):
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         result = cursor.execute('''SELECT * FROM Produtos WHERE id = ?''', prod_id).fetchall()
         keys = [descricao[0] for description in cursor.description]
@@ -95,7 +98,7 @@ def recupera_produto(prod_id):
 def posta_produto(produto):
 
     def altera_produto(produto):
-        with _get_connection() as con:
+        with get_connection() as con:
             cursor = con.cursor()
             cursor.execute('''UPDATE Produtos SET nome = ?,
                                                   preco_compra = ?,
@@ -114,7 +117,7 @@ def posta_produto(produto):
             0
         )
 
-        with _get_connection() as con:
+        with get_connection() as con:
             cursor = con.cursor()
             cursor.execute(
                 '''INSERT INTO Produtos (id, nome, preco_compra, preco_venda, estoque)
@@ -125,7 +128,7 @@ def posta_produto(produto):
     if 'id' not in produto.keys():
         produto['id'] = ''
 
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         result = cursor.execute('''SELECT * FROM Produtos WHERE id = ?''',
                                 (produto['id'],)).fetchone()
@@ -136,14 +139,14 @@ def posta_produto(produto):
 
 
 def remove_produto(prod_id):
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         cursor.execute('''DELETE FROM Produtos WHERE id = ?''', (prod_id,))
 
     return {'transaction': 'done'}
 
 def vendas():
-    with _get_connection() as con:
+    with get_connection() as con:
         cursor = con.cursor()
         result = cursor.execute('''SELECT v.data, vp.quantidade*p.preco_venda
                                    FROM Vendas v

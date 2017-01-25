@@ -13,9 +13,23 @@ from db import remove_produto
 from db import comprar as db_comprar_produto
 from db import insere_venda
 from db import vendas as db_vendas
+from db import get_connection
 
-app = Flask(__name__)
+from contextlib import closing
+
+app = Flask(__name__, template_folder="AromaClient",
+            static_folder="AromaClient", static_url_path="")
 logger = logging.getLogger(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+def init_db():
+    with closing(get_connection()) as sql:
+        with app.open_resource('constroi_banco.sql', mode='r') as f:
+            sql.cursor().executescript(f.read())
+        sql.commit()
+
+init_db()
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -57,7 +71,7 @@ def registra_compra():
 
 @app.route('/venda', methods=['POST'])
 def venda():
-    request_data = request.data.decode()
+    request_data = json.loads(request.data.decode())
     return jsonify(insere_venda(request_data))
 
 
