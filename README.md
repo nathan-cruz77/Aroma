@@ -105,7 +105,7 @@ consideration, it is common to separate this section to its own file called
 
 ## Licensing
 
-Copyright (C) 2017  Gabriel Cruz
+    Copyright (C) 2017  Gabriel Cruz
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
